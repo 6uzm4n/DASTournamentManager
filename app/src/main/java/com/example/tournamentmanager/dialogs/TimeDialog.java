@@ -38,7 +38,7 @@ public class TimeDialog extends DialogFragment implements TimePickerDialog.OnTim
     @Override
     public void onTimeSet(TimePicker view, int hour, int minute) {
 
-        // Notificamos la fecha escogida
+        // Notificamos la hora escogida
         listener.timeSet(hour, minute);
     }
 

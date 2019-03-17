@@ -44,6 +44,7 @@ public class DateDialog extends DialogFragment implements DatePickerDialog.OnDat
         // Comprobamos que la fecha no es menor que la actual
         if (year > currentYear || (year == currentYear && month > currentMonth) ||
                 (year == currentYear && month == currentMonth && day > currentDay)) {
+            // Notificamos la fecha escogida
             listener.dateSet(year, month, day);
         } else {
             Toast.makeText(getContext(), getString(R.string.tournament_date_invalid), Toast.LENGTH_LONG).show();
