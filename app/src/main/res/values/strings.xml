@@ -1,0 +1,78 @@
+<resources>
+    <!--  -->
+    <!-- Main Strings: Activities and Fragments -->
+    <string name="title_activity_main">Tournament Manager</string> <!--TODO: Borrar? -->
+    <string name="title_activity_tournament_list">Tournament info</string> <!--TODO: Borrar? -->
+    <string name="app_name">TournamentManager</string>
+    <string name="home_menu">Home Menu</string>
+    <string name="settings">Settings</string>
+    <string name="tournament">Tournament</string>
+    <string name="tournaments">Tournaments</string>
+    <string name="profile">Profile</string>
+    <string name="exit">Exit</string>
+
+    <!-- Navigation Drawer -->
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+
+    <!-- Login / Register / Logout -->
+    <string name="input_username">Username</string>
+    <string name="input_password">Password</string>
+    <string name="input_password_repeat">Confirm password</string>
+    <string name="input_email">Email</string>
+    <string name="log_in">Log in</string>
+    <string name="log_out">Log out</string>
+    <string name="register">Register</string>
+    <string name="register_link">Not a member? Click here to register.</string>
+    <string name="login_link">Already a member? Click here to login.</string>
+    <string name="error_empty">Field can not be empty.</string>
+    <string name="error_login">Username or password are not correct.</string>
+    <string name="error_username_format">Username must be between 3 and 12 characters.</string>
+    <string name="error_email_format">Introduce a valid email address.</string>
+    <string name="error_username_taken">That username is already taken.</string>
+    <string name="error_email_taken">Account already exists for your email.</string>
+    <string name="error_password_format">Password must be 8 characters or longer and contain letters and numbers.</string>
+    <string name="error_password2_different">Both password fields must be the same.</string>
+
+    <!-- Profile -->
+    <string name="profile_picture_description">User\'s profile picture</string>
+    <string name="my_tournaments">My tournaments</string>
+    <string name="my_participations">My participations</string>
+
+    <!-- Tournament info and registration -->
+    <string name="tournament_name">Name</string>
+    <string name="tournament_game">Game</string>
+    <string name="tournament_description">Description</string>
+    <string name="tournament_date">Date</string>
+    <string name="tournament_time">Time</string>
+    <string name="tournament_location">Location</string>
+    <string name="tournament_register">Register</string>
+    <string name="tournament_create">Create tournament</string>
+    <string name="tournament_delete">Delete tournament</string>
+    <string name="tournament_join">Join tournament</string>
+    <string name="tournament_leave">Leave tournament</string>
+    <string name="tournament_contact">Contact with the creator via email</string>
+    <string name="tournament_name_taken">There is already a tournament with the same name. Try to be more descriptive!</string>
+    <string name="tournament_date_invalid">You can\'t create a tournament in the past!</string>
+
+
+    <!-- Dialogs -->
+    <string name="option_yes">Yes</string>
+    <string name="option_no">No</string>
+    <string name="exit_dialog_title">Warning</string>
+    <string name="exit_dialog_message">Are you sure you want to close the app?</string>
+    <string name="delete_dialog_title">Warning</string>
+    <string name="delete_dialog_message">Are you sure you want to delete the tournament?</string>
+
+    <!-- Notifications -->
+    <string name="notification_upcoming_tournament">Upcoming tournament!</string>
+    <string name="notification_body">The tournament you are signed in is taking place in the next days!</string>
+
+
+    <!-- Settings -->
+    <string name="switch_night_mode">Night mode</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+
+
+</resources>
