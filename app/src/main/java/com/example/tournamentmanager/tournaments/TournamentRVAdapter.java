@@ -13,7 +13,6 @@ import java.util.ArrayList;
 
 public class TournamentRVAdapter extends RecyclerView.Adapter<TournamentRVAdapter.TournamentViewHolder> {
 
-    private ArrayList<String> tournamentIds;
     private ArrayList<String> tournamentNames;
     private ArrayList<String> tournamentLocations;
     private ArrayList<String> tournamentDates;
