@@ -1,54 +1,106 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:padding="16dp"
-    tools:context=".menus.ProfileFragment">
+    android:layout_height="match_parent">
 
-    <ImageView
-        android:id="@+id/imageView_profile_picture"
-        android:layout_width="200dp"
-        android:layout_height="200dp"
-        android:adjustViewBounds="true"
-        android:contentDescription="@string/profile_picture_description"
-        android:scaleType="fitXY"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.07999998"
-        app:srcCompat="@drawable/profile_picture"
-        tools:src="@tools:sample/avatars[3]" />
-
-    <TextView
-        android:id="@+id/textView_username"
-        android:layout_width="wrap_content"
+    <android.support.constraint.ConstraintLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:textSize="36sp"
-        app:layout_constraintEnd_toEndOf="@+id/imageView_profile_picture"
-        app:layout_constraintStart_toStartOf="@+id/imageView_profile_picture"
-        app:layout_constraintTop_toBottomOf="@+id/imageView_profile_picture" />
+        android:padding="16dp"
+        tools:context=".menus.ProfileFragment">
 
-    <Button
-        android:id="@+id/button_my_tournaments"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="32dp"
-        android:text="@string/my_tournaments"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView_username" />
+        <ProgressBar
+            android:id="@+id/progressBar"
+            style="?android:attr/progressBarStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:indeterminate="true"
+            app:layout_constraintBottom_toBottomOf="@+id/imageView_profile_picture"
+            app:layout_constraintEnd_toEndOf="@+id/imageView_profile_picture"
+            app:layout_constraintStart_toStartOf="@+id/imageView_profile_picture"
+            app:layout_constraintTop_toTopOf="@+id/imageView_profile_picture" />
 
-    <Button
-        android:id="@+id/button_my_participations"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:text="@string/my_participations"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/button_my_tournaments" />
-</android.support.constraint.ConstraintLayout>
+        <ImageView
+            android:id="@+id/imageView_profile_picture"
+            android:layout_width="wrap_content"
+            android:layout_height="200dp"
+            android:adjustViewBounds="true"
+            android:contentDescription="@string/profile_picture_description"
+            android:scaleType="fitXY"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.497"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.03" />
+
+        <TextView
+            android:id="@+id/textView_username"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:textSize="36sp"
+            app:layout_constraintEnd_toEndOf="@+id/imageView_profile_picture"
+            app:layout_constraintStart_toStartOf="@+id/imageView_profile_picture"
+            app:layout_constraintTop_toBottomOf="@+id/imageView_profile_picture" />
+
+        <Button
+            android:id="@+id/button_my_tournaments"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="32dp"
+            android:text="@string/my_tournaments"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/textView_username" />
+
+        <Button
+            android:id="@+id/button_my_participations"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="@string/my_participations"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/button_my_tournaments" />
+
+        <TextView
+            android:id="@+id/textView_location_info"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="@string/location_info"
+            android:textAlignment="center"
+            android:textSize="18sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/button_my_participations" />
+
+        <Spinner
+            android:id="@+id/spinner_regions"
+            android:layout_width="0dp"
+            android:layout_height="32dp"
+            android:layout_marginTop="16dp"
+            android:entries="@array/cities"
+            android:spinnerMode="dialog"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/textView_location_info" />
+
+        <ImageView
+            android:id="@+id/imageView_edit"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="8dp"
+            android:src="@android:drawable/ic_menu_edit"
+            android:visibility="invisible"
+            app:layout_constraintEnd_toEndOf="@+id/imageView_profile_picture"
+            app:layout_constraintTop_toTopOf="@+id/imageView_profile_picture" />
+
+    </android.support.constraint.ConstraintLayout>
+
+</ScrollView>

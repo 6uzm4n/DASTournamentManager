@@ -54,4 +54,8 @@
     <string name="delete_dialog_message">¿Estás seguro de querer eliminar este torneo?</string>
     <string name="notification_upcoming_tournament">Próximo torneo</string>
     <string name="notification_body">Un torneo al que te has apuntado tendrá lugar en los próximos días.</string>
+    <string name="location_info">Si quieres recibir notificaciones sobre torneos en tu zona, elige tu región más abajo. Si no quieres recibir notificaciones, deja el campo vacío.</string>
+    <string name="choose_image_input">Elige el método de entrada</string>
+    <string name="option_galery">Galería</string>
+    <string name="option_camera">Cámara</string>
 </resources>

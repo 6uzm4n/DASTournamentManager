@@ -5,6 +5,11 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.os.AsyncTask;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -18,26 +23,37 @@ public class DatabaseManager extends SQLiteOpenHelper {
 
     // Información de la tabla user
     private static final String TABLE_USER = "user";
-    private static final String COLUMN_USER_USERNAME = "username";
-    private static final String COLUMN_USER_PASSWORD = "password";
-    private static final String COLUMN_USER_MAIL = "mail";
+    public static final String COLUMN_USER_USERNAME = "username";
+    public static final String COLUMN_USER_PASSWORD = "password";
+    public static final String COLUMN_USER_MAIL = "mail";
+    public static final String COLUMN_USER_LOCATION = "password";
+    private static final String COLUMN_USER_IMAGE = "image";
+    public static final String COLUMN_USER_TOKEN = "token";
+    private static final String[] COLUMNS_USER = {COLUMN_USER_USERNAME, COLUMN_USER_MAIL,
+                                                  COLUMN_USER_PASSWORD, COLUMN_USER_MAIL,
+                                                  COLUMN_USER_LOCATION, COLUMN_USER_IMAGE,
+                                                  COLUMN_USER_TOKEN};
 
     // Información de la tabla tournament
     private static final String TABLE_TOURNAMENT = "tournament";
-    private static final String COLUMN_TOURNAMENT_ID = "id";
-    private static final String COLUMN_TOURNAMENT_NAME = "name";
-    private static final String COLUMN_TOURNAMENT_GAME = "game";
-    private static final String COLUMN_TOURNAMENT_DESCRIPTION = "description";
-    private static final String COLUMN_TOURNAMENT_DATE = "date";
-    private static final String COLUMN_TOURNAMENT_LOCATION = "location";
-    private static final String COLUMN_TOURNAMENT_CREATOR = "creator";
-
-
+    public static final String COLUMN_TOURNAMENT_ID = "id";
+    public static final String COLUMN_TOURNAMENT_NAME = "name";
+    public static final String COLUMN_TOURNAMENT_GAME = "game";
+    public static final String COLUMN_TOURNAMENT_DESCRIPTION = "description";
+    public static final String COLUMN_TOURNAMENT_DATE = "date";
+    public static final String COLUMN_TOURNAMENT_LOCATION = "location";
+    public static final String COLUMN_TOURNAMENT_CREATOR = "creator";
+    private static final String[] COLUMNS_TOURNAMENT = {COLUMN_TOURNAMENT_ID, COLUMN_TOURNAMENT_NAME,
+                                                        COLUMN_TOURNAMENT_GAME, COLUMN_TOURNAMENT_DESCRIPTION,
+                                                        COLUMN_TOURNAMENT_DATE, COLUMN_TOURNAMENT_LOCATION,
+                                                        COLUMN_TOURNAMENT_CREATOR};
+    
     // Información de la tabla participation
     private static final String TABLE_PARTICIPATION = "participation";
-    private static final String COLUMN_PARTICIPATION_USER = "p_user";
-    private static final String COLUMN_PARTICIPATION_TOURNAMENT = "p_tournament";
-    private static final String COLUMN_PARTICIPATION_RESULT = "result";
+    public static final String COLUMN_PARTICIPATION_USER = "p_user";
+    public static final String COLUMN_PARTICIPATION_TOURNAMENT = "p_tournament";
+    public static final String COLUMN_PARTICIPATION_RESULT = "result";
+    private static final String[] COLUMNS_PARTICIPATION = {COLUMN_PARTICIPATION_USER, COLUMN_PARTICIPATION_TOURNAMENT, COLUMN_PARTICIPATION_RESULT};
 
     // Sentencias para la creación de las tablas
     private static final String CREATE_TABLE_USER = "CREATE TABLE " + TABLE_USER + " (" +
@@ -135,27 +151,47 @@ public class DatabaseManager extends SQLiteOpenHelper {
     }
 
     /**
+     * Devuelve la información de torneos que satisfagan las condiciones de la query.
+     *
+     * @param query query a utilizar
+     * @return      arraylist que contiene las columnas del torneo seleccionado
+     */
+    private JSONArray getTournamentsQuery(String query) {
+        JSONArray result = new JSONArray();
+
+        SQLiteDatabase db = getReadableDatabase();
+        Cursor c = db.rawQuery(query, null);
+        while (c.moveToNext()) {
+            JSONObject tmpTournament = new JSONObject();
+            for (String column:COLUMNS_TOURNAMENT) {
+                try {
+                    tmpTournament.put(column, c.getString(c.getColumnIndex(column)));
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+            result.put(tmpTournament);
+        }
+        c.close();
+        db.close();
+        return result;
+    }
+
+    /**
      * Devuelve la información de un torneo dado su id.
      *
      * @param id id del torneo
      * @return arraylist que contiene las columnas del torneo seleccionado
      */
-    public ArrayList<String> getTournamentById(String id) {
-        ArrayList<String> result = new ArrayList<>();
-
-        SQLiteDatabase db = getReadableDatabase();
-        Cursor c = db.rawQuery(String.format("SELECT * FROM %s WHERE %s = '%s'", TABLE_TOURNAMENT, COLUMN_TOURNAMENT_ID, id), null);
-        while (c.moveToNext()) {
-            result.add(c.getString(0));
-            result.add(c.getString(1));
-            result.add(c.getString(2));
-            result.add(c.getString(3));
-            result.add(c.getString(4));
-            result.add(c.getString(5));
-            result.add(c.getString(6));
+    public JSONObject getTournamentById(String id) {
+        String query = String.format("SELECT * FROM %s WHERE %s = '%s'", TABLE_TOURNAMENT, COLUMN_TOURNAMENT_ID, id);
+        JSONObject result = null;
+        try {
+            result = getTournamentsQuery(query).getJSONObject(0);
+        } catch (JSONException e) {
+            e.printStackTrace();
         }
-        c.close();
-        db.close();
+        System.out.println("===================================\nID:" + id);
         return result;
     }
 
@@ -165,29 +201,11 @@ public class DatabaseManager extends SQLiteOpenHelper {
      * @return hashmap en el cual cada key es una columna de la base de datos, y cada valor un arraylist
      *         que contiene, según su índice, los datos de cada torneo
      */
-    public HashMap<String, ArrayList<String>> getAllTournaments() {
-        HashMap<String, ArrayList<String>> map = new HashMap<>();
-        map.put(COLUMN_TOURNAMENT_ID, new ArrayList<String>());
-        map.put(COLUMN_TOURNAMENT_NAME, new ArrayList<String>());
-        map.put(COLUMN_TOURNAMENT_GAME, new ArrayList<String>());
-        map.put(COLUMN_TOURNAMENT_DESCRIPTION, new ArrayList<String>());
-        map.put(COLUMN_TOURNAMENT_DATE, new ArrayList<String>());
-        map.put(COLUMN_TOURNAMENT_LOCATION, new ArrayList<String>());
-        map.put(COLUMN_TOURNAMENT_CREATOR, new ArrayList<String>());
-        SQLiteDatabase db = getReadableDatabase();
-        Cursor c = db.rawQuery(String.format("SELECT * FROM %s ORDER BY %s DESC", TABLE_TOURNAMENT, COLUMN_TOURNAMENT_DATE), null);
-        while (c.moveToNext()) {
-            map.get(COLUMN_TOURNAMENT_ID).add(c.getString(0));
-            map.get(COLUMN_TOURNAMENT_NAME).add(c.getString(1));
-            map.get(COLUMN_TOURNAMENT_GAME).add(c.getString(2));
-            map.get(COLUMN_TOURNAMENT_DESCRIPTION).add(c.getString(3));
-            map.get(COLUMN_TOURNAMENT_DATE).add(c.getString(4));
-            map.get(COLUMN_TOURNAMENT_LOCATION).add(c.getString(5));
-            map.get(COLUMN_TOURNAMENT_CREATOR).add(c.getString(6));
-        }
-        c.close();
-        db.close();
-        return map;
+    public JSONArray getAllTournaments() {
+        String query = String.format("SELECT * FROM %s ORDER BY %s DESC", TABLE_TOURNAMENT, COLUMN_TOURNAMENT_DATE);
+        JSONArray result = getTournamentsQuery(query);
+
+        return result;
     }
 
     /**
@@ -197,30 +215,12 @@ public class DatabaseManager extends SQLiteOpenHelper {
      * @return          hashmap en el cual cada key es una columna de la base de datos, y cada valor un arraylist
      *                  que contiene, según su índice, los datos de cada torneo
      */
-    public HashMap<String, ArrayList<String>> getTournamentsByCreator(String creator) {
-        HashMap<String, ArrayList<String>> map = new HashMap<>();
-        map.put(COLUMN_TOURNAMENT_ID, new ArrayList<String>());
-        map.put(COLUMN_TOURNAMENT_NAME, new ArrayList<String>());
-        map.put(COLUMN_TOURNAMENT_GAME, new ArrayList<String>());
-        map.put(COLUMN_TOURNAMENT_DESCRIPTION, new ArrayList<String>());
-        map.put(COLUMN_TOURNAMENT_DATE, new ArrayList<String>());
-        map.put(COLUMN_TOURNAMENT_LOCATION, new ArrayList<String>());
-        map.put(COLUMN_TOURNAMENT_CREATOR, new ArrayList<String>());
-        SQLiteDatabase db = getReadableDatabase();
-        Cursor c = db.rawQuery(String.format("SELECT * FROM %s WHERE %s='%s' ORDER BY %s DESC",
-                TABLE_TOURNAMENT, COLUMN_TOURNAMENT_CREATOR, creator, COLUMN_TOURNAMENT_DATE), null);
-        while (c.moveToNext()) {
-            map.get(COLUMN_TOURNAMENT_ID).add(c.getString(0));
-            map.get(COLUMN_TOURNAMENT_NAME).add(c.getString(1));
-            map.get(COLUMN_TOURNAMENT_GAME).add(c.getString(2));
-            map.get(COLUMN_TOURNAMENT_DESCRIPTION).add(c.getString(3));
-            map.get(COLUMN_TOURNAMENT_DATE).add(c.getString(4));
-            map.get(COLUMN_TOURNAMENT_LOCATION).add(c.getString(5));
-            map.get(COLUMN_TOURNAMENT_CREATOR).add(c.getString(6));
-        }
-        c.close();
-        db.close();
-        return map;
+    public JSONArray getTournamentsByCreator(String creator) {
+        String query = String.format("SELECT * FROM %s WHERE %s='%s' ORDER BY %s DESC",
+                TABLE_TOURNAMENT, COLUMN_TOURNAMENT_CREATOR, creator, COLUMN_TOURNAMENT_DATE);
+        JSONArray result = getTournamentsQuery(query);
+
+        return result;
     }
 
     /**
@@ -230,32 +230,14 @@ public class DatabaseManager extends SQLiteOpenHelper {
      * @return      hashmap en el cual cada key es una columna de la base de datos, y cada valor un arraylist
      *              que contiene, según su índice, los datos de cada torneo
      */
-    public HashMap<String, ArrayList<String>> getTournamentsByParticipation(String user) {
-        HashMap<String, ArrayList<String>> map = new HashMap<>();
-        map.put(COLUMN_TOURNAMENT_ID, new ArrayList<String>());
-        map.put(COLUMN_TOURNAMENT_NAME, new ArrayList<String>());
-        map.put(COLUMN_TOURNAMENT_GAME, new ArrayList<String>());
-        map.put(COLUMN_TOURNAMENT_DESCRIPTION, new ArrayList<String>());
-        map.put(COLUMN_TOURNAMENT_DATE, new ArrayList<String>());
-        map.put(COLUMN_TOURNAMENT_LOCATION, new ArrayList<String>());
-        map.put(COLUMN_TOURNAMENT_CREATOR, new ArrayList<String>());
-        SQLiteDatabase db = getReadableDatabase();
-        Cursor c = db.rawQuery(String.format("SELECT %s.* FROM %s INNER JOIN %s ON %s.%s=%s.%s WHERE %s.%s='%s' ORDER BY %s.%s DESC",
+    public JSONArray getTournamentsByParticipation(String user) {
+        String query = String.format("SELECT %s.* FROM %s INNER JOIN %s ON %s.%s=%s.%s WHERE %s.%s='%s' ORDER BY %s.%s DESC",
                 TABLE_TOURNAMENT, TABLE_TOURNAMENT, TABLE_PARTICIPATION, TABLE_TOURNAMENT, COLUMN_TOURNAMENT_ID,
                 TABLE_PARTICIPATION, COLUMN_PARTICIPATION_TOURNAMENT, TABLE_PARTICIPATION, COLUMN_PARTICIPATION_USER,
-                user, TABLE_TOURNAMENT, COLUMN_TOURNAMENT_DATE), null);
-        while (c.moveToNext()) {
-            map.get(COLUMN_TOURNAMENT_ID).add(c.getString(0));
-            map.get(COLUMN_TOURNAMENT_NAME).add(c.getString(1));
-            map.get(COLUMN_TOURNAMENT_GAME).add(c.getString(2));
-            map.get(COLUMN_TOURNAMENT_DESCRIPTION).add(c.getString(3));
-            map.get(COLUMN_TOURNAMENT_DATE).add(c.getString(4));
-            map.get(COLUMN_TOURNAMENT_LOCATION).add(c.getString(5));
-            map.get(COLUMN_TOURNAMENT_CREATOR).add(c.getString(6));
-        }
-        c.close();
-        db.close();
-        return map;
+                user, TABLE_TOURNAMENT, COLUMN_TOURNAMENT_DATE);
+        JSONArray result = getTournamentsQuery(query);
+
+        return result;
     }
 
     /**
@@ -265,7 +247,8 @@ public class DatabaseManager extends SQLiteOpenHelper {
      * @return hashmap en el cual cada key es una columna de la base de datos, y cada valor un arraylist
      *         que contiene, según su índice, los datos de cada torneo
      */
-    public HashMap<String, ArrayList<String>> getNextTournamentsByParticipation(String user) {
+    @Deprecated
+    public JSONArray getNextTournamentsByParticipation(String user) {
 
         Calendar calendar = Calendar.getInstance();
         String formatedYear = String.format("%04d", calendar.get(Calendar.YEAR));
@@ -278,33 +261,15 @@ public class DatabaseManager extends SQLiteOpenHelper {
         String formatedDayTomorrow = String.format("%02d", calendar.get(Calendar.DAY_OF_MONTH));
         String formatedDateTomorrow = String.format("%s-%s-%s", formatedYearTomorrow, formatedMonthTomorrow, formatedDayTomorrow);
 
-        HashMap<String, ArrayList<String>> map = new HashMap<>();
-        map.put(COLUMN_TOURNAMENT_ID, new ArrayList<String>());
-        map.put(COLUMN_TOURNAMENT_NAME, new ArrayList<String>());
-        map.put(COLUMN_TOURNAMENT_GAME, new ArrayList<String>());
-        map.put(COLUMN_TOURNAMENT_DESCRIPTION, new ArrayList<String>());
-        map.put(COLUMN_TOURNAMENT_DATE, new ArrayList<String>());
-        map.put(COLUMN_TOURNAMENT_LOCATION, new ArrayList<String>());
-        map.put(COLUMN_TOURNAMENT_CREATOR, new ArrayList<String>());
-        SQLiteDatabase db = getReadableDatabase();
-        Cursor c = db.rawQuery(String.format("SELECT %s.* FROM %s INNER JOIN %s ON %s.%s=%s.%s WHERE %s.%s='%s'" +
-                        "AND %s.%s <= '%s' AND %s.%s >= '%s' ORDER BY %s.%s",
+        String query = String.format("SELECT %s.* FROM %s INNER JOIN %s ON %s.%s=%s.%s WHERE %s.%s='%s'" +
+                "AND %s.%s <= '%s' AND %s.%s >= '%s' ORDER BY %s.%s",
                 TABLE_TOURNAMENT, TABLE_TOURNAMENT, TABLE_PARTICIPATION, TABLE_TOURNAMENT, COLUMN_TOURNAMENT_ID,
                 TABLE_PARTICIPATION, COLUMN_PARTICIPATION_TOURNAMENT, TABLE_PARTICIPATION, COLUMN_PARTICIPATION_USER, user,
                 TABLE_TOURNAMENT, COLUMN_TOURNAMENT_DATE, formatedDateTomorrow, TABLE_TOURNAMENT, COLUMN_TOURNAMENT_DATE,
-                formatedDate, TABLE_TOURNAMENT, COLUMN_TOURNAMENT_DATE), null);
-        while (c.moveToNext()) {
-            map.get(COLUMN_TOURNAMENT_ID).add(c.getString(0));
-            map.get(COLUMN_TOURNAMENT_NAME).add(c.getString(1));
-            map.get(COLUMN_TOURNAMENT_GAME).add(c.getString(2));
-            map.get(COLUMN_TOURNAMENT_DESCRIPTION).add(c.getString(3));
-            map.get(COLUMN_TOURNAMENT_DATE).add(c.getString(4));
-            map.get(COLUMN_TOURNAMENT_LOCATION).add(c.getString(5));
-            map.get(COLUMN_TOURNAMENT_CREATOR).add(c.getString(6));
-        }
-        c.close();
-        db.close();
-        return map;
+                formatedDate, TABLE_TOURNAMENT, COLUMN_TOURNAMENT_DATE);
+        JSONArray result = getTournamentsQuery(query);
+
+        return result;
     }
 
     /**

@@ -10,6 +10,10 @@ import android.widget.TextView;
 
 import com.example.tournamentmanager.DatabaseManager;
 import com.example.tournamentmanager.R;
+import com.example.tournamentmanager.ServerDB;
+
+import java.util.Objects;
+import java.util.concurrent.ExecutionException;
 
 public class RegisterActivity extends AppCompatActivity {
 
@@ -18,7 +22,7 @@ public class RegisterActivity extends AppCompatActivity {
     private TextInputLayout inputPassword;
     private TextInputLayout inputPassword2;
 
-    private DatabaseManager dbManager;
+//    private DatabaseManager dbManager;
 
 
     @Override
@@ -31,7 +35,7 @@ public class RegisterActivity extends AppCompatActivity {
         inputPassword = findViewById(R.id.textInputLayout_password);
         inputPassword2 = findViewById(R.id.textInputLayout_password2);
 
-        dbManager = new DatabaseManager(this);
+//        dbManager = new DatabaseManager(this);
 
         TextView loginLink = findViewById(R.id.textView_login);
         loginLink.setOnClickListener(new View.OnClickListener() {
@@ -47,7 +51,6 @@ public class RegisterActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 if (validateRegister()) {
-                    // TODO: Popup de registro.
                     finish();
                 }
             }
@@ -58,12 +61,31 @@ public class RegisterActivity extends AppCompatActivity {
         if (!validateUsername() | !validateEmail() | !validatePassword() | !validatePassword2()) {
             return false;
         }
-        if (dbManager.addUser(getUsername(), getPassword(), getEmail())) {
+        ServerDB serverDB = new ServerDB(this);
+        serverDB.addUser(getUsername(), getEmail(), getPassword());
+        String result = null;
+        try {
+            result = serverDB.get();
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        if (result.equals("true")) {
             return true;
         } else {
-            inputUsername.setError("ERROR ?????????");
+            //TODO
+            inputUsername.setError("ERROR REGISTRO ?????????");
             return false;
         }
+
+//        if (dbManager.addUser(getUsername(), getPassword(), getEmail())) {
+//            return true;
+//        } else {
+//            inputUsername.setError("ERROR ?????????");
+//            return false;
+//        }
     }
 
     private boolean validateUsername() {
@@ -74,10 +96,28 @@ public class RegisterActivity extends AppCompatActivity {
         } else if (username.length() < 3 || username.length() > 12) {
             inputUsername.setError(getString(R.string.error_username_format));
             return false;
-        }else if (dbManager.checkUserExists(username)) {
-            inputUsername.setError(getString(R.string.error_username_taken));
-            return false;
+        } else {
+            ServerDB serverDB = new ServerDB(this);
+            serverDB.checkUserExists(username);
+            String result = null;
+            try {
+                result = serverDB.get();
+            } catch (ExecutionException e) {
+                e.printStackTrace();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            if (result.equals("true")) {
+                inputUsername.setError(getString(R.string.error_username_taken));
+                return false;
+            }
         }
+
+//        else if (dbManager.checkUserExists(username)) {
+//            inputUsername.setError(getString(R.string.error_username_taken));
+//            return false;
+//        }
+
         inputUsername.setError("");
         return true;
     }
@@ -92,10 +132,28 @@ public class RegisterActivity extends AppCompatActivity {
         } else if (!email.matches(emailRegex)) {
             inputEmail.setError(getString(R.string.error_email_format));
             return false;
-        }else if (dbManager.checkMailExists(email)) {
-            inputEmail.setError(getString(R.string.error_email_taken));
-            return false;
+        } else {
+            ServerDB serverDB = new ServerDB(this);
+            serverDB.checkMailExists(email);
+            String result = null;
+            try {
+                result = serverDB.get();
+            } catch (ExecutionException e) {
+                e.printStackTrace();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            if (result.equals("true")) {
+                inputUsername.setError(getString(R.string.error_username_taken));
+                return false;
+            }
         }
+
+//        else if (dbManager.checkMailExists(email)) {
+//            inputEmail.setError(getString(R.string.error_email_taken));
+//            return false;
+//        }
+
         inputEmail.setError("");
         return true;
     }
@@ -129,20 +187,20 @@ public class RegisterActivity extends AppCompatActivity {
     }
 
     private String getUsername() {
-        return inputUsername.getEditText().getText().toString().trim(); //Es bueno utilizar trim() ya que los correctores pueden introducir un espacio indeseado al final de los inputs.
+        return Objects.requireNonNull(inputUsername.getEditText()).getText().toString().trim(); //Es bueno utilizar trim() ya que los correctores pueden introducir un espacio indeseado al final de los inputs.
 
     }
 
     private String getEmail() {
-        return inputEmail.getEditText().getText().toString().trim(); //Es bueno utilizar trim() ya que los correctores pueden introducir un espacio indeseado al final de los inputs.
+        return Objects.requireNonNull(inputEmail.getEditText()).getText().toString().trim(); //Es bueno utilizar trim() ya que los correctores pueden introducir un espacio indeseado al final de los inputs.
     }
 
     private String getPassword() {
-        return inputPassword.getEditText().getText().toString().trim(); //Es bueno utilizar trim() ya que los correctores pueden introducir un espacio indeseado al final de los inputs.
+        return Objects.requireNonNull(inputPassword.getEditText()).getText().toString().trim(); //Es bueno utilizar trim() ya que los correctores pueden introducir un espacio indeseado al final de los inputs.
 
     }
 
     private String getPassword2() {
-        return inputPassword2.getEditText().getText().toString().trim(); //Es bueno utilizar trim() ya que los correctores pueden introducir un espacio indeseado al final de los inputs.
+        return Objects.requireNonNull(inputPassword2.getEditText()).getText().toString().trim(); //Es bueno utilizar trim() ya que los correctores pueden introducir un espacio indeseado al final de los inputs.
     }
 }

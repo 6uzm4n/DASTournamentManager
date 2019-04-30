@@ -7,15 +7,17 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.example.tournamentmanager.DatabaseManager;
 import com.example.tournamentmanager.R;
+
+import org.json.JSONArray;
+import org.json.JSONException;
 
 import java.util.ArrayList;
 
 public class TournamentRVAdapter extends RecyclerView.Adapter<TournamentRVAdapter.TournamentViewHolder> {
 
-    private ArrayList<String> tournamentNames;
-    private ArrayList<String> tournamentLocations;
-    private ArrayList<String> tournamentDates;
+    private JSONArray tournaments;
 
     private OnItemClickListener myListener;
 
@@ -27,10 +29,8 @@ public class TournamentRVAdapter extends RecyclerView.Adapter<TournamentRVAdapte
         myListener = listener;
     }
 
-    public TournamentRVAdapter(ArrayList<String> names, ArrayList<String> locations, ArrayList<String> dates) {
-        tournamentNames = names;
-        tournamentLocations = locations;
-        tournamentDates = dates;
+    public TournamentRVAdapter(JSONArray pTournaments) {
+        tournaments = pTournaments;
     }
 
     @NonNull
@@ -43,15 +43,20 @@ public class TournamentRVAdapter extends RecyclerView.Adapter<TournamentRVAdapte
 
     @Override
     public void onBindViewHolder(@NonNull TournamentViewHolder tournamentViewHolder, int i) {
-        tournamentViewHolder.tournamentName.setText(tournamentNames.get(i));
-        tournamentViewHolder.tournamentLocation.setText(tournamentLocations.get(i));
-        tournamentViewHolder.tournamentDate.setText(tournamentDates.get(i));
+        try {
+            tournamentViewHolder.tournamentName.setText(tournaments.getJSONObject(i).getString(DatabaseManager.COLUMN_TOURNAMENT_NAME));
+            tournamentViewHolder.tournamentLocation.setText(tournaments.getJSONObject(i).getString(DatabaseManager.COLUMN_TOURNAMENT_LOCATION));
+            tournamentViewHolder.tournamentDate.setText(tournaments.getJSONObject(i).getString(DatabaseManager.COLUMN_TOURNAMENT_DATE));
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
     }
 
 
     @Override
     public int getItemCount() {
-        return tournamentNames.size();
+        return tournaments.length();
     }
 
     public static class TournamentViewHolder extends RecyclerView.ViewHolder {

@@ -8,11 +8,17 @@ import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
+import android.widget.Spinner;
+import android.widget.TextView;
 
 import com.example.tournamentmanager.DatabaseManager;
+import com.example.tournamentmanager.ServerDB;
 import com.example.tournamentmanager.dialogs.DateDialog;
 import com.example.tournamentmanager.R;
 import com.example.tournamentmanager.dialogs.TimeDialog;
+
+import java.sql.Struct;
+import java.util.concurrent.ExecutionException;
 
 
 /**
@@ -26,13 +32,13 @@ public class CreateTournamentActivity extends AppCompatActivity implements DateD
     private TextInputLayout inputDescription;
     private TextInputLayout inputDate;
     private TextInputLayout inputTime;
-    private TextInputLayout inputLocation;
+    private Spinner inputLocation;
     private Button buttonCreateTournament;
 
     private String selectedDate;
     private String selectedTime;
 
-    private DatabaseManager databaseManager;
+//    private DatabaseManager databaseManager;
 
 
     public CreateTournamentActivity() {
@@ -46,7 +52,7 @@ public class CreateTournamentActivity extends AppCompatActivity implements DateD
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_create_tournament);
 
-        databaseManager = new DatabaseManager(this);
+//        databaseManager = new DatabaseManager(this);
 
         inputName = findViewById(R.id.textInputLayout_tournament_name);
         inputGame = findViewById(R.id.textInputLayout_tournament_game);
@@ -78,7 +84,6 @@ public class CreateTournamentActivity extends AppCompatActivity implements DateD
             @Override
             public void onClick(View v) {
                 if (validateCreation()) {
-                    System.out.println("SUCCESS");
                     finish();
                 }
             }
@@ -111,12 +116,32 @@ public class CreateTournamentActivity extends AppCompatActivity implements DateD
         }
         SharedPreferences session = getSharedPreferences("session", 0);
         String user = session.getString("session", null);
-        if (databaseManager.addTournament(getName(), getGame(), getDescription(), getDateSQLite(), getLocation(), user)) {
+        ServerDB serverDB = new ServerDB(this);
+        serverDB.addTournament(getName(), getGame(), getDescription(), getDateSQLite(), getLocation(), user);
+        String result = null;
+        try {
+            result = serverDB.get();
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        if (result == null) {
+            serverDB.notifyError(getWindow().getDecorView().getRootView());
+            return false;
+        } else if (result.equals("true")){
             return true;
-        } else {
+        }else {
             inputName.setError("ERROR ?????????");
             return false;
         }
+//        if (databaseManager.addTournament(getName(), getGame(), getDescription(), getDateSQLite(), getLocation(), user)) {
+//            return true;
+//        } else {
+//            inputName.setError("ERROR ?????????");
+//            return false;
+//        }
     }
 
     private boolean validateName() {
@@ -124,12 +149,33 @@ public class CreateTournamentActivity extends AppCompatActivity implements DateD
         if (name.isEmpty()) {
             inputName.setError(getString(R.string.error_empty));
             return false;
-        } else if (databaseManager.checkTournamentNameExists(name)) {
-            inputName.setError(getString(R.string.tournament_name_taken));
+        } else {
+            ServerDB serverDB = new ServerDB(this);
+            serverDB.checkTournamentNameExists(name);
+            String result = null;
+            try {
+                result = serverDB.get();
+            } catch (ExecutionException e) {
+                e.printStackTrace();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            if (result != null && result.equals("true")){
+                inputName.setError(getString(R.string.tournament_name_taken));
+                return false;
+            } else if (result != null && result.equals("false")){
+                inputName.setError("");
+                return true;
+            }
+            serverDB.notifyError(getWindow().getDecorView().getRootView());
             return false;
         }
-        inputName.setError("");
-        return true;
+//        else if (databaseManager.checkTournamentNameExists(name)) {
+//            inputName.setError(getString(R.string.tournament_name_taken));
+//            return false;
+//        }
+//        inputName.setError("");
+//        return true;
     }
 
     private boolean validateGame() {
@@ -162,11 +208,10 @@ public class CreateTournamentActivity extends AppCompatActivity implements DateD
 
     private boolean validateLocation() {
         String location = getLocation();
-        if (location.isEmpty()) {
-            inputLocation.setError(getString(R.string.error_empty));
+        if (location.equals("")) {
+            ((TextView) inputLocation.getSelectedView()).setError(getString(R.string.error_empty));
             return false;
         }
-        inputLocation.setError("");
         return true;
     }
 
@@ -188,6 +233,6 @@ public class CreateTournamentActivity extends AppCompatActivity implements DateD
 
 
     private String getLocation() {
-        return inputLocation.getEditText().getText().toString().trim();
+        return inputLocation.getSelectedItem().toString();
     }
 }

@@ -13,9 +13,12 @@ import android.view.ViewGroup;
 
 import com.example.tournamentmanager.DatabaseManager;
 import com.example.tournamentmanager.R;
+import com.example.tournamentmanager.ServerDB;
 
-import java.util.ArrayList;
-import java.util.HashMap;
+import org.json.JSONArray;
+import org.json.JSONException;
+
+import java.util.concurrent.ExecutionException;
 
 
 public class TournamentListFragment extends Fragment {
@@ -23,20 +26,12 @@ public class TournamentListFragment extends Fragment {
     private boolean masterFlow = false;
     RecyclerView recyclerView;
 
-
-    private ArrayList<String> tournamentIds = new ArrayList<>();
-
-    private ArrayList<String> tournamentNames = new ArrayList<>();
-    private ArrayList<String> tournamentLocations = new ArrayList<>();
-    private ArrayList<String> tournamentDates = new ArrayList<>();
-
     public TournamentListFragment() {
     }
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        System.out.println("FRAGMENT CREATE VIEW");
         // Inflar el layout del fragment
         View view = inflater.inflate(R.layout.fragment_tournament_list, container, false);
 
@@ -46,73 +41,98 @@ public class TournamentListFragment extends Fragment {
 
         recyclerView = view.findViewById(R.id.recyclerview_tournaments);
 
-        updateList();
+        //updateList();
 
         return view;
     }
 
-    private void updateList(){
-        DatabaseManager db = new DatabaseManager(getContext());
-        HashMap<String, ArrayList<String>> map;
+    private void updateList() {
+//        DatabaseManager db = new DatabaseManager(getContext());
 
         Bundle args = getArguments();
+        ServerDB serverDB = new ServerDB(getContext());
         if (args != null && args.getString("creator") != null) {
-            map = db.getTournamentsByCreator(args.getString("creator"));
+            serverDB.getTournamentsByCreator(args.getString("creator"));
         } else if (args != null && args.getString("participation") != null) {
-            map = db.getTournamentsByParticipation(args.getString("participation"));
+            serverDB.getTournamentsByParticipation(args.getString("participation"));
         } else {
-            map = db.getAllTournaments();
+            serverDB.getAllTournaments();
         }
 
-        tournamentIds = map.get("id");
-        tournamentNames = map.get("name");
-        tournamentLocations = map.get("location");
-        tournamentDates = map.get("date");
+        String result = null;
+        try {
+            result = serverDB.get();
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        if (result == null) {
+            serverDB.notifyError(getActivity().getWindow().getDecorView().getRootView());
+            return;
+        }
 
 
-        TournamentRVAdapter adapter = new TournamentRVAdapter(tournamentNames, tournamentLocations, tournamentDates);
+        JSONArray tournaments = null;
+        try {
+            tournaments = new JSONArray(result);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        TournamentRVAdapter adapter = new TournamentRVAdapter(tournaments);
         recyclerView.setAdapter(adapter);
 
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false); //TODO: context?
         recyclerView.setLayoutManager(linearLayoutManager);
 
+        final JSONArray tournamentsFinal = tournaments;
+
         adapter.setOnItemClickListener(new TournamentRVAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(int pos) {
                 Bundle args = new Bundle();
-                args.putString("id", tournamentIds.get(pos));
+                try {
+                    args.putString("id", tournamentsFinal.getJSONObject(pos).getString(DatabaseManager.COLUMN_TOURNAMENT_ID));
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
                 if (masterFlow) {
-                    System.out.println("Tablet");
                     TournamentInfoFragment tournamentInfoFragment = new TournamentInfoFragment();
                     tournamentInfoFragment.setArguments(args);
                     getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container_tournament, tournamentInfoFragment).commit();
                 } else {
-                    System.out.println("Movil");
                     Intent i = new Intent(getActivity(), TournamentInfoActivity.class);
                     i.putExtras(args);
                     startActivity(i);
                 }
             }
         });
+
+
+//        Bundle args = getArguments();
+//        if (args != null && args.getString("creator") != null) {
+//            tournaments = db.getTournamentsByCreator(args.getString("creator"));
+//        } else if (args != null && args.getString("participation") != null) {
+//            tournaments = db.getTournamentsByParticipation(args.getString("participation"));
+//        } else {
+//            tournaments = db.getAllTournaments();
+//        }
+
     }
 
     @Override
     public void onStart() {
         super.onStart();
-        System.out.println("ON START");
-        System.out.println(getArguments());
         updateList();
     }
+
 
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         // TODO: Aquí se accede a la clase original
-        System.out.println("FRAGMENT ACTIVITY CREATED");
     }
 
-    public void newItem(String st) {
-        tournamentNames.add(st);
-        tournamentLocations.add(st);
-    }
 }

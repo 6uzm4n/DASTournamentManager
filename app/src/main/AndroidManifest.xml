@@ -6,12 +6,17 @@
 
     <dist:module dist:instant="true" />
 
+    <uses-feature android:name="android.hardware.camera2.full" android:required="true"/>
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+
     <application
         android:allowBackup="true"
         android:icon="@drawable/tm_icon"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
+        android:largeHeap="true"
         android:theme="@style/AppTheme"
         tools:ignore="GoogleAppIndexingWarning">
         <activity
@@ -25,7 +30,12 @@
             android:label="@string/my_tournaments" />
         <activity
             android:name=".tournaments.TournamentInfoActivity"
-            android:label="@string/title_activity_tournament_list" />
+            android:label="@string/title_activity_tournament_list">
+            <intent-filter>
+                <action android:name="TORNEO" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
         <activity
             android:name=".menus.LoginActivity"
             android:launchMode="singleTask"
@@ -48,6 +58,27 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <service
+            android:name=".FirebaseManager"
+            android:enabled="true"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+            </intent-filter>
+        </service>
+
+        <provider
+            android:authorities="com.example.tournamentmanager.provider"
+            android:name="android.support.v4.content.FileProvider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_provider"/>
+        </provider>
     </application>
+
+
 
 </manifest>

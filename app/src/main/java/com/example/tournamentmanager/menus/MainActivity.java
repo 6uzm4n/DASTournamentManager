@@ -112,7 +112,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     return true;
                 case R.id.drawer_logout:
                     // Se elimina la sesión almacenada
-                    SharedPreferences session = getSharedPreferences("session", 0); // TODO: Almacenar estas variables?
+                    SharedPreferences session = getSharedPreferences("session", 0);
                     SharedPreferences.Editor editor = session.edit();
                     editor.remove("session");
                     editor.commit();
