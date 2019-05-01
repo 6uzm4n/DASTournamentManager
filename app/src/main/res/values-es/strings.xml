@@ -58,4 +58,5 @@
     <string name="choose_image_input">Elige el método de entrada</string>
     <string name="option_galery">Galería</string>
     <string name="option_camera">Cámara</string>
+    <string name="connection_error">No se pudo acceder al servidor. Comprueba tu conexión.</string>
 </resources>

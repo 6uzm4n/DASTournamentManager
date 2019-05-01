@@ -81,30 +81,29 @@ public class SplashScreenActivity extends AppCompatActivity {
         }, SPLASH_DURATION);
     }
 
-    @Deprecated
-    public void notifyUpcomingTournaments(String user) {
-        DatabaseManager db = new DatabaseManager(this);
-
-        NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-        NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this, "TournamentManager");
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            NotificationChannel notificationChannel = new NotificationChannel("TournamentManager", "UpcomingTournaments", NotificationManager.IMPORTANCE_DEFAULT);
-            notificationManager.createNotificationChannel(notificationChannel);
-        }
-
-        JSONArray tournaments = db.getNextTournamentsByParticipation(user);
-        for (int i = 0; i < tournaments.length(); i++) {
-            try {
-                notificationBuilder.setSmallIcon(android.R.drawable.stat_sys_warning)
-                        .setContentTitle(tournaments.getJSONObject(i).getString(DatabaseManager.COLUMN_TOURNAMENT_NAME))
-                        .setSubText(getString(R.string.notification_upcoming_tournament))
-                        .setContentText(getString(R.string.notification_body))
-                        .setVibrate(new long[]{0, 500, 100, 500})
-                        .setAutoCancel(true);
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-            notificationManager.notify(i, notificationBuilder.build());
-        }
-    }
+//    public void notifyUpcomingTournaments(String user) {
+//        DatabaseManager db = new DatabaseManager(this);
+//
+//        NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+//        NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this, "TournamentManager");
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+//            NotificationChannel notificationChannel = new NotificationChannel("TournamentManager", "UpcomingTournaments", NotificationManager.IMPORTANCE_DEFAULT);
+//            notificationManager.createNotificationChannel(notificationChannel);
+//        }
+//
+//        JSONArray tournaments = db.getNextTournamentsByParticipation(user);
+//        for (int i = 0; i < tournaments.length(); i++) {
+//            try {
+//                notificationBuilder.setSmallIcon(android.R.drawable.stat_sys_warning)
+//                        .setContentTitle(tournaments.getJSONObject(i).getString(DatabaseManager.COLUMN_TOURNAMENT_NAME))
+//                        .setSubText(getString(R.string.notification_upcoming_tournament))
+//                        .setContentText(getString(R.string.notification_body))
+//                        .setVibrate(new long[]{0, 500, 100, 500})
+//                        .setAutoCancel(true);
+//            } catch (JSONException e) {
+//                e.printStackTrace();
+//            }
+//            notificationManager.notify(i, notificationBuilder.build());
+//        }
+//    }
 }

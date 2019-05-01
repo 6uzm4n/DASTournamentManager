@@ -72,6 +72,8 @@
     <string name="notification_upcoming_tournament">Upcoming tournament!</string>
     <string name="notification_body">The tournament you are signed in is taking place in the next days!</string>
 
+    <!-- Error messages -->
+    <string name="connection_error">Can\'t access the server. Check your internet connection.</string>
 
     <!-- Settings -->
     <string name="switch_night_mode">Night mode</string>

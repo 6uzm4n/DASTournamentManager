@@ -24,6 +24,12 @@ public class ImageUploader extends AsyncTask<Bitmap, Void, String> {
         return image64;
     }
 
+    /**
+     * Dada una imagen, se comprimirá esta en segundo plano y a continuación se subirá al servidor.
+     * @param pContext  Contexto de la ejecución
+     * @param pImage    Imagen a codificar
+     * @param pUser     Usuario al que se asignará la imagen
+     */
     public void uploadCompressed(Context pContext, Bitmap pImage, String pUser){
         user = pUser;
         context = pContext;
@@ -32,7 +38,7 @@ public class ImageUploader extends AsyncTask<Bitmap, Void, String> {
 
     @Override
     protected void onPostExecute(String s) {
-        super.onPostExecute(s);
+        //Una vez codificada la imagen se subirá esta a la base de datos
         ServerDB serverDB = new ServerDB(context);
         serverDB.updateUserImage(user, s);
     }
